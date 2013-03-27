@@ -46,10 +46,19 @@ class MemoryDataCollectorTest extends \PHPUnit_Framework_TestCase
     public function getBytesConversionTestData()
     {
         return array(
-            array('-1', -1),
             array('2k', 2048),
-            array('2K', 2048),
+            array('2 k', 2048),
+            array('8m', 8 * 1024 * 1024),
+            array('+2 k', 2048),
+            array('+2???k', 2048),
+            array('0x10', 16),
+            array('0xf', 15),
+            array('010', 8),
+            array('+0x10 k', 16 * 1024),
             array('1g', 1024 * 1024 * 1024),
+            array('-1', -1),
+            array('0', 0),
+            array('2mk', 2048), // the unit must be the last char, so in this case 'k', not 'm'
         );
     }
 }

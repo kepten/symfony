@@ -87,9 +87,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     protected static function getBundleDefaultConfig()
     {
         return array(
-            'charset'             => null,
             'http_method_override' => true,
-            'trust_proxy_headers' => false,
             'trusted_proxies'     => array(),
             'ide'                 => null,
             'default_locale'      => 'en',
@@ -126,6 +124,9 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
                 'file_cache_dir' => '%kernel.cache_dir%/annotations',
                 'debug'          => '%kernel.debug%',
             ),
+            'serializer'          => array(
+                'enabled' => false           
+            )
         );
     }
 }
