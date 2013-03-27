@@ -62,6 +62,44 @@ class FormTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testConstructorThrowsExceptionIfNoRelatedForm()
+    {
+        $dom = new \DOMDocument();
+        $dom->loadHTML('
+            <html>
+                <input type="submit" form="bar" />
+                <form id="bar">
+                    <input type="submit" form="bar" />
+                    <input type="submit" form="nonexistent" />
+                </form>
+                <input type="text" form="nonexistent" />
+                <button />
+            </html>
+        ');
+
+        $nodes = $dom->getElementsByTagName('input');
+
+        $form = new Form($nodes->item(0), 'http://example.com');
+        $this->assertSame($dom->getElementsByTagName('form')->item(0), $form->getFormNode(), 'HTML5-compliant form attribute handled incorrectly');
+
+        $form = new Form($nodes->item(1), 'http://example.com');
+        $this->assertSame($dom->getElementsByTagName('form')->item(0), $form->getFormNode(), 'HTML5-compliant form attribute handled incorrectly');
+
+        try {
+            $form = new Form($nodes->item(2), 'http://example.com');
+            $this->fail('__construct() throws a \\LogicException if the form attribute is invalid');
+        } catch (\LogicException $e) {
+            $this->assertTrue(true, '__construct() throws a \\LogicException if the form attribute is invalid');
+        }
+
+        try {
+            $form = new Form($nodes->item(3), 'http://example.com');
+            $this->fail('__construct() throws a \\LogicException if the form attribute is invalid');
+        } catch (\LogicException $e) {
+            $this->assertTrue(true, '__construct() throws a \\LogicException if the form attribute is invalid');
+        }
+    }
+
     public function testMultiValuedFields()
     {
         $form = $this->createForm('<form>

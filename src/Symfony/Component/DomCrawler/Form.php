@@ -331,7 +331,7 @@ class Form extends Link implements \ArrayAccess
     }
 
     /**
-     * Sets current \DOMNode instance.
+     * Expects a 'submit' button and finds the corresponding form element.
      *
      * @param \DOMNode $node A \DOMNode instance
      *
@@ -341,12 +341,23 @@ class Form extends Link implements \ArrayAccess
     {
         $this->button = $node;
         if ('button' == $node->nodeName || ('input' == $node->nodeName && in_array($node->getAttribute('type'), array('submit', 'button', 'image')))) {
-            do {
-                // use the ancestor form element
-                if (null === $node = $node->parentNode) {
-                    throw new \LogicException('The selected node does not have a form ancestor.');
+            if ($node->hasAttribute('form')) {
+                // if the node has the HTML5-compliant 'form' attribute, use it
+                $formId = $node->getAttribute('form');
+                $form = $node->ownerDocument->getElementById($formId);
+                if (null === $form) {
+                    throw new \LogicException(sprintf('The selected node has an invalid form attribute (%s).', $formId));
                 }
-            } while ('form' != $node->nodeName);
+                $this->node = $form;
+                return;
+            } else {
+                // we loop until we find a form ancestor
+                do {
+                    if (null === $node = $node->parentNode) {
+                        throw new \LogicException('The selected node does not have a form ancestor.');
+                    }
+                } while ('form' != $node->nodeName);
+            }
         } elseif ('form' != $node->nodeName) {
             throw new \LogicException(sprintf('Unable to submit on a "%s" tag.', $node->nodeName));
         }
